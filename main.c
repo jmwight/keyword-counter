@@ -136,8 +136,6 @@ struct attr getword(char *word, int lim)
 	int c, nxt_c, firstch; 
 	static int onelncom, multilncom;
 	static struct attr wattr;
-	/*int getch(void);
-	void ungetch(int); */   //try this later & remove getch.h header for learning
 
 	char *w = word;
 	onelncom = multilncom = 0;
@@ -173,7 +171,7 @@ struct attr getword(char *word, int lim)
 					ungetch(c);
 				break;
 			case '#':
-				/* at beginning of word */
+				/* if at beginning of word */
 				if(w = word)
 					*w++ = c;
 				else
@@ -203,25 +201,4 @@ struct attr getword(char *word, int lim)
 		}
 
 	}
-
-	
-	/*if(c != EOF && c != '#' && c != '/' && c != "\"")
-		*w++ = c;
-	if(c == '"')
-		comment ? commment = 0 : comment = 1;
-	else if(c == '#')
-		comment = 1;
-	if(!isalpha(c) && c != '_' && c != '#' && c != '/' && c != "\"")
-	{
-		*w = '\0';
-		return c;
-	}
-	for( ; --lim > 0; w++)
-		if(!isalnum(*w = getch()) && *w != '_')
-		{
-			ungetch(*w);
-			break;
-		}
-	*w = '\0';
-	return word[0];*/
 }
