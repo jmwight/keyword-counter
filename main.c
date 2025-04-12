@@ -1,4 +1,4 @@
-#include "getch.h"
+//#include "getch.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -136,6 +136,9 @@ struct attr getword(char *word, int lim)
 	int c, nxt_c, firstch; 
 	static int onelncom, multilncom;
 	static struct attr wattr;
+
+	int getch(void);
+	void ungetch(int);   //try this later & remove getch.h header for learning	
 
 	char *w = word;
 	onelncom = multilncom = 0;
