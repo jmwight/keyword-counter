@@ -11,6 +11,14 @@ struct key
 	char *word;
 	int count;
 } keytab[] = {
+	"#define", 0,
+	"#endif", 0,
+	"#error", 0,
+	"#if", 0,
+	"#ifdef", 0,
+	"#ifndef", 0,
+	"#include", 0,
+	"#undef", 0,
 	"alignas", 0,
 	"alignof", 0,
 	"auto", 0,
@@ -74,16 +82,22 @@ struct key
 
 #define NKEYS (sizeof keytab / sizeof(struct key))
 
-int getword(char *, int);
+struct attr
+{
+	int comm, str, c;
+};
+
+struct attr getword(char *, int);
 int binsearch(char *, struct key *, int);
 
 int main(void)
 {
 	int n;
 	char word[MAXWORD];
+	struct attr wattr;
 
-	while(getword(word, MAXWORD) != EOF)
-		if(isalpha(word[0]))
+	while((wattr = getword(word, MAXWORD)).c != EOF)
+		if((isalpha(word[0]) || word[0] == '_' || word[0] == '#') && !wattr.str && !wattr.comm)
 			if((n = binsearch(word, keytab, NKEYS)) >= 0)
 				keytab[n].count++;
 	printf("\nKeywords Found:\n");
@@ -117,27 +131,97 @@ int binsearch(char *word, struct key tab[], int n)
 }
 
 /* getword: get next word or character from input */
-int getword(char *word, int lim)
+struct attr getword(char *word, int lim)
 {
-	int c; /* getch(void); 
+	int c, nxt_c, firstch; 
+	static int onelncom, multilncom;
+	static struct attr wattr;
+	/*int getch(void);
 	void ungetch(int); */   //try this later & remove getch.h header for learning
+
 	char *w = word;
+	onelncom = multilncom = 0;
 
 	while(isspace(c = getch()))
-		;
-	if(c != EOF)
+		if(c == '\n')
+			onelncom = 0;
+
+	for(firstch = 1; --lim > 0; c = getch())
+	{
+		switch(c) 
+		{
+			case '"':
+				wattr.str ? 0 : 1;
+				break;
+			case '/':
+				if((nxt_c = getch()) == '*')
+					multilncom = 1;
+				else if(nxt_c == '/')
+					onelncom = 1;
+				else
+					ungetch(nxt_c);
+				if(multilncom || onelncom)
+					wattr.comm = 1;
+				break;
+			case '*':
+				if((nxt_c = getch()) == '/')
+				{
+					multilncom = 0;
+					wattr.comm = 0;
+				}
+				else
+					ungetch(c);
+				break;
+			case '#':
+				/* at beginning of word */
+				if(w = word)
+					*w++ = c;
+				else
+					wattr.c = *word;
+				break;
+			case EOF:
+				*w = '\0';
+				wattr.c = c;
+				return wattr;
+			case '_':
+				*w++ = c;
+				if(firstch)
+					firstch = 0;
+				break;
+			default:
+				*w = c;
+				if(firstch && !isalpha(*w) || !firstch && !isalnum(*w))
+				{
+					*w = '\0';
+					wattr.c = *word;
+					return wattr;
+				}
+				if(firstch)
+					firstch = 0;
+				w++;
+				break;
+		}
+
+	}
+
+	
+	/*if(c != EOF && c != '#' && c != '/' && c != "\"")
 		*w++ = c;
-	if(!isalpha(c))
+	if(c == '"')
+		comment ? commment = 0 : comment = 1;
+	else if(c == '#')
+		comment = 1;
+	if(!isalpha(c) && c != '_' && c != '#' && c != '/' && c != "\"")
 	{
 		*w = '\0';
 		return c;
 	}
 	for( ; --lim > 0; w++)
-		if(!isalnum(*w = getch()))
+		if(!isalnum(*w = getch()) && *w != '_')
 		{
 			ungetch(*w);
 			break;
 		}
 	*w = '\0';
-	return word[0];
+	return word[0];*/
 }
