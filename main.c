@@ -152,7 +152,11 @@ struct attr getword(char *word, int lim)
 		switch(c) 
 		{
 			case '"':
-				wattr.str ? 0 : 1;
+				/* flip quote on or off */
+				if(!wattr.str)
+					wattr.str = 1;
+				else
+					wattr.str = 0;
 				break;
 			case '/':
 				if((nxt_c = getch()) == '*')
