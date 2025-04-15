@@ -175,7 +175,7 @@ struct attr getword(char *word, int lim)
 					wattr.comm = 0;
 				}
 				else
-					ungetch(c);
+					ungetch(nxt_c);
 				break;
 			case '#':
 				/* if at beginning of word */
